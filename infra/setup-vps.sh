@@ -148,17 +148,14 @@ cat <<INFO
 
   Settings -> Secrets and variables -> Actions -> New repository secret
 
-  DEPLOY_USER        $DEPLOY_USER
-  DEPLOY_HOST        $(curl -fsS --max-time 10 https://api.ipify.org || echo '<this VPS IP>')
-  DEPLOY_PORT        22
-  DEPLOY_PATH        /
-      ^ intentionally just "/" — rrsync roots the deploy key at $WEBROOT,
-        so "/" over that connection already means $WEBROOT.
+  VPS_USER   $DEPLOY_USER
+  VPS_HOST   $(curl -fsS --max-time 10 https://api.ipify.org || echo '<this VPS IP>')
 
-  DEPLOY_KNOWN_HOSTS
-$(ssh-keyscan -t ed25519 127.0.0.1 2>/dev/null | sed "s#^127.0.0.1#$(curl -fsS --max-time 10 https://api.ipify.org || echo HOST)#" | sed 's/^/    /')
+  Only three secrets. The destination path and port are not sensitive and live
+  in the workflow; the SSH host public key is pinned there too, since it is
+  public by definition and belongs somewhere reviewable.
 
-  DEPLOY_SSH_KEY  (private key — paste the whole block, then it is never needed again)
+  VPS_SSH_KEY  (paste the whole block, BEGIN and END lines included)
 
 INFO
 sudo cat "/home/$DEPLOY_USER/.ssh/id_ed25519"
