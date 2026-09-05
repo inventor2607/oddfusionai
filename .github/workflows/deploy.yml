@@ -40,30 +40,41 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           printf '%s %s\n' "${{ secrets.VPS_HOST }}" "$HOST_KEY" > ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
+          echo "private key line count: $(wc -l < ~/.ssh/id_ed25519)"
+          head -1 ~/.ssh/id_ed25519
 
-      - name: 'PROBE 1 - ssh authenticates at all'
-        run: ssh -o BatchMode=yes -o ConnectTimeout=15 -i ~/.ssh/id_ed25519 "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" true
+      # Diagnostics. A forced-command key refuses any non-rsync command, so
+      # "ssh <host> true" failing proves nothing on its own -- the exit code is
+      # what separates "could not authenticate" (255) from "authenticated, then
+      # rrsync refused the command" (anything else).
+      - name: 'PROBE A - tcp/22 reachable'
+        run: timeout 10 bash -c ':> /dev/tcp/${{ secrets.VPS_HOST }}/22'
 
-      - name: 'PROBE 2 - account is oddfusion-deploy'
+      - name: 'PROBE B - key authenticates (exit code is not 255)'
         run: |
-          who=$(ssh -o BatchMode=yes -i ~/.ssh/id_ed25519 "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" 'id -un' 2>/dev/null || echo NONE)
-          test "$who" = "oddfusion-deploy"
-
-      - name: 'PROBE 3 - key is rrsync-confined (a plain command must fail)'
-        run: |
-          if ssh -o BatchMode=yes -i ~/.ssh/id_ed25519 "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" 'echo unrestricted' 2>/dev/null | grep -q unrestricted; then
-            exit 1   # key is NOT confined -> wrong key/user
+          set +e
+          ssh -o BatchMode=yes -o ConnectTimeout=15 -i "$HOME/.ssh/id_ed25519" "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" true
+          rc=$?
+          set -e
+          echo "ssh exit code: $rc"
+          if [ "$rc" -eq 255 ]; then
+            echo "255 = transport/auth failure: wrong user, wrong key, or host key mismatch" >&2
+            exit 1
           fi
+          echo "authenticated. a non-255 code here means rrsync rejected 'true', which is correct."
+
+      - name: 'PROBE C - rsync dry-run through rrsync'
+        run: |
+          rsync -rlvz --delete --dry-run -e "ssh -o BatchMode=yes -i $HOME/.ssh/id_ed25519" site/ "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${DEST}"
 
       - name: Rsync site to web root
         run: |
           # No --chmod: rrsync refuses it (it is not in rrsync's allowed long
           # options) and the deploy would fail. Not needed anyway -- checkout
           # produces 644 files and 755 directories.
-          rsync -rlvz --delete \
-            -e "ssh -i ~/.ssh/id_ed25519" \
-            site/ \
-            "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${DEST}"
+          # $HOME rather than ~: tilde is not expanded inside double quotes, so
+          # ssh would otherwise be handed a literal "~/.ssh/id_ed25519".
+          rsync -rlvz --delete -e "ssh -o BatchMode=yes -i $HOME/.ssh/id_ed25519" site/ "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${DEST}"
 
       - name: Verify the site answers
         run: |
