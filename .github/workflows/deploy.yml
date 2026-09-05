@@ -95,3 +95,5 @@ jobs:
             echo "page served is not the real one" >&2
             exit 1
           fi
+
+# Probes above are temporary and come out once a deploy succeeds.
