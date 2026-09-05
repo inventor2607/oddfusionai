@@ -43,19 +43,38 @@ root. `--delete` is on, so the web root mirrors `site/` exactly.
 | `DEPLOY_KNOWN_HOSTS` | The server's SSH host key line, from `ssh-keyscan -t ed25519 <host>`. Pinned so a deploy cannot be sent to an impostor. |
 | `DEPLOY_USER` | The deploy user's name. |
 | `DEPLOY_HOST` | Server hostname or IP. |
-| `DEPLOY_PATH` | Absolute web root, e.g. `/var/www/oddfusion.ai`. |
+| `DEPLOY_PATH` | `/` — see below. |
 | `DEPLOY_PORT` | Optional. Defaults to 22. |
 
 **Until these secrets exist the workflow will fail.** That is expected on a fresh
 repository, not a bug — the first successful run is the one after the deploy user
 is created and the secrets are set.
 
+`DEPLOY_PATH` is `/`, which looks wrong and is not. The deploy key is wrapped in
+`rrsync` (see below), which roots that SSH connection at the web root, so `/`
+over that connection already *means* `/var/www/oddfusion.ai`.
+
 ### The deploy user
 
-The deploy account has write access to the web root and nothing else. It is not
-root, is not in `sudo`, and has no shell login worth stealing. If the key in
-GitHub secrets leaks, the blast radius is "someone can replace a marketing page",
-not "someone owns the box that also runs two other production sites".
+`oddfusion-deploy` is a system account: not root, not in `sudo`, owning nothing
+but the web root. Its `authorized_keys` entry pins the key to
+
+```
+command="/usr/bin/rrsync /var/www/oddfusion.ai",restrict
+```
+
+so that key can run exactly one program, confined to one directory, with no pty
+and no port/agent/X11 forwarding. If it leaks, the blast radius is "someone can
+replace a marketing page" — not "someone owns the box that also runs tenkif.com
+and tripplansai.com".
+
+### First-time setup
+
+`infra/setup-vps.sh` does the one-time server setup: deploy user, directories,
+nginx blocks, certificate. It is the only step that needs sudo, it refuses to
+overwrite anything that already exists, and it validates nginx before every
+reload so a mistake cannot take the neighbouring sites down. It prints the six
+secret values at the end.
 
 ## Server
 
@@ -77,6 +96,10 @@ Routing:
 | `www.oddfusionai.com` | 301 → `https://oddfusion.ai` |
 
 `oddfusionai.com` is a typo-catcher. It never serves content.
+
+`infra/nginx/default-tls-reject.conf` is shared-host hygiene rather than part of
+this site: it makes nginx reject the TLS handshake for names this box does not
+serve, instead of answering them with the first site's certificate.
 
 ## Local preview
 
