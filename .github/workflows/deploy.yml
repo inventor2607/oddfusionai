@@ -40,32 +40,6 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           printf '%s %s\n' "${{ secrets.VPS_HOST }}" "$HOST_KEY" > ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
-          echo "private key line count: $(wc -l < ~/.ssh/id_ed25519)"
-          head -1 ~/.ssh/id_ed25519
-
-      # Diagnostics. A forced-command key refuses any non-rsync command, so
-      # "ssh <host> true" failing proves nothing on its own -- the exit code is
-      # what separates "could not authenticate" (255) from "authenticated, then
-      # rrsync refused the command" (anything else).
-      - name: 'PROBE A - tcp/22 reachable'
-        run: timeout 10 bash -c ':> /dev/tcp/${{ secrets.VPS_HOST }}/22'
-
-      - name: 'PROBE B - key authenticates (exit code is not 255)'
-        run: |
-          set +e
-          ssh -o BatchMode=yes -o ConnectTimeout=15 -i "$HOME/.ssh/id_ed25519" "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" true
-          rc=$?
-          set -e
-          echo "ssh exit code: $rc"
-          if [ "$rc" -eq 255 ]; then
-            echo "255 = transport/auth failure: wrong user, wrong key, or host key mismatch" >&2
-            exit 1
-          fi
-          echo "authenticated. a non-255 code here means rrsync rejected 'true', which is correct."
-
-      - name: 'PROBE C - rsync dry-run through rrsync'
-        run: |
-          rsync -rlvz --delete --dry-run -e "ssh -o BatchMode=yes -i $HOME/.ssh/id_ed25519" site/ "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${DEST}"
 
       - name: Rsync site to web root
         run: |
@@ -95,5 +69,3 @@ jobs:
             echo "page served is not the real one" >&2
             exit 1
           fi
-
-# Probes above are temporary and come out once a deploy succeeds.

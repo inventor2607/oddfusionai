@@ -20,7 +20,11 @@ set -euo pipefail
 DEPLOY_USER="oddfusion-deploy"
 WEBROOT="/var/www/oddfusion.ai"
 ACME_ROOT="/var/www/certbot"
-RAW="https://raw.githubusercontent.com/inventor2607/oddfusionai/main/infra/nginx"
+# Pinned to a commit, not a branch: raw.githubusercontent.com edge-caches branch
+# URLs, and a stale copy silently installed the wrong nginx config once already.
+# Bump this SHA deliberately when the configs change.
+PIN="7462b4f"
+RAW="https://raw.githubusercontent.com/inventor2607/oddfusionai/$PIN/infra/nginx"
 CERT_NAME="oddfusion.ai"
 DOMAINS=(oddfusion.ai www.oddfusion.ai oddfusionai.com www.oddfusionai.com)
 CERTBOT_EMAIL="michal@oddfusion.ai"
