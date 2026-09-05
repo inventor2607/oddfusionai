@@ -26,6 +26,12 @@ Empty is a valid state: the page catches the submit, tells the visitor nothing
 was sent, and does not lose the message silently. Set it to the Formspree/Tally
 POST URL when there is one.
 
+**When you set it, also add that origin to `connect-src` in the
+Content-Security-Policy** in `infra/nginx/oddfusion.conf`. The form submits with
+`fetch()`, and the policy currently allows `connect-src 'self'` only, so an
+unlisted endpoint is blocked by the browser and the form fails silently. One
+line, but it has to happen at the same time.
+
 There is deliberately no form backend on this VPS. Sending mail from a fresh IP
 means SPF/DKIM/DMARC and reputation work, and the entire point of the page is
 that a message from a stranger actually arrives.
@@ -105,9 +111,26 @@ Routing:
 
 `oddfusionai.com` is a typo-catcher. It never serves content.
 
-`infra/nginx/default-tls-reject.conf` is shared-host hygiene rather than part of
-this site: it makes nginx reject the TLS handshake for names this box does not
-serve, instead of answering them with the first site's certificate.
+Two files in `infra/nginx/` are shared-host hygiene rather than part of this
+site, both added because publishing one site here advertises the IP for all of
+them:
+
+- `default-tls-reject.conf` — rejects the TLS handshake for names this box does
+  not serve, instead of answering them with the first site's certificate.
+- `default-http-reject.conf` — replaces the stock port-80 catch-all, which
+  answered any unknown Host with HTTP 200 and the "Welcome to nginx!" page. It
+  keeps the ACME location so no existing renewal can break.
+
+`server_tokens off` is set in `nginx.conf` so responses no longer advertise the
+exact nginx version.
+
+### Security headers
+
+Declared once at server level and inherited. Caching uses `expires` rather than
+`add_header Cache-Control` on purpose: nginx only inherits `add_header` into a
+location that declares none of its own, so a per-location `Cache-Control`
+silently drops every security header. That happened here — the homepage was
+served without `X-Frame-Options` or `Referrer-Policy` until it was restructured.
 
 ## Local preview
 
