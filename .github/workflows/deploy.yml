@@ -19,32 +19,54 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
+    env:
+      # The deploy key is wrapped in rrsync on the server, which roots this SSH
+      # connection at /var/www/oddfusion.ai. "/" here therefore already means
+      # the web root, and the key cannot reach anything above it.
+      DEST: '/'
+      # The server's SSH host public key. Public by definition -- every client
+      # that connects is shown it -- so it belongs in version control where it
+      # can be reviewed, not in a secret. Pinning it is what stops a deploy
+      # being handed to whatever answers on that address.
+      HOST_KEY: 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEmiWb8lg7lkaNH7EDU1zbRA6+t2R3neMczIs+Y1ESSZ'
+
     steps:
       - uses: actions/checkout@v4
 
-      - name: Load deploy key
+      - name: Load deploy key and pin the host key
         run: |
           mkdir -p ~/.ssh
-          printf '%s\n' "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_ed25519
+          printf '%s\n' "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          # Pinned host key rather than StrictHostKeyChecking=no: accepting any
-          # key would let anything answering on that address receive the deploy.
-          printf '%s\n' "${{ secrets.DEPLOY_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          printf '%s %s\n' "${{ secrets.VPS_HOST }}" "$HOST_KEY" > ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
 
       - name: Rsync site to web root
         run: |
+          # No --chmod: rrsync refuses it (it is not in rrsync's allowed long
+          # options) and the deploy would fail. Not needed anyway -- checkout
+          # produces 644 files and 755 directories.
           rsync -rlvz --delete \
-            --chmod=D755,F644 \
-            -e "ssh -i ~/.ssh/id_ed25519 -p ${{ secrets.DEPLOY_PORT || 22 }}" \
+            -e "ssh -i ~/.ssh/id_ed25519" \
             site/ \
-            "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:${{ secrets.DEPLOY_PATH }}/"
+            "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${DEST}"
 
       - name: Verify the site answers
         run: |
-          code=$(curl -s -o /dev/null -w '%{http_code}' https://oddfusion.ai/)
+          set -e
+          code=$(curl -sS -o /dev/null -w '%{http_code}' https://oddfusion.ai/)
           echo "https://oddfusion.ai/ -> $code"
           test "$code" = "200"
-          code=$(curl -s -o /dev/null -w '%{http_code}' https://oddfusion.ai/preview.png)
+
+          code=$(curl -sS -o /dev/null -w '%{http_code}' https://oddfusion.ai/preview.png)
           echo "https://oddfusion.ai/preview.png -> $code"
           test "$code" = "200"
+
+          # The placeholder that setup-vps.sh wrote must be gone, otherwise the
+          # rsync silently went somewhere else and a 200 would prove nothing.
+          if curl -sS https://oddfusion.ai/ | grep -q 'ODD FUSION'; then
+            echo "real page is live"
+          else
+            echo "page served is not the real one" >&2
+            exit 1
+          fi

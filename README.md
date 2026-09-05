@@ -39,20 +39,28 @@ root. `--delete` is on, so the web root mirrors `site/` exactly.
 
 | Secret | What it is |
 |---|---|
-| `DEPLOY_SSH_KEY` | Private key of the **dedicated deploy user**. Not a personal key, and never root. |
-| `DEPLOY_KNOWN_HOSTS` | The server's SSH host key line, from `ssh-keyscan -t ed25519 <host>`. Pinned so a deploy cannot be sent to an impostor. |
-| `DEPLOY_USER` | The deploy user's name. |
-| `DEPLOY_HOST` | Server hostname or IP. |
-| `DEPLOY_PATH` | `/` — see below. |
-| `DEPLOY_PORT` | Optional. Defaults to 22. |
+| `VPS_SSH_KEY` | Private key of the **dedicated deploy user**. Not a personal key, and never root. |
+| `VPS_USER` | The deploy user's name (`oddfusion-deploy`). |
+| `VPS_HOST` | Server hostname or IP. |
+
+Three secrets, not six. The destination path is `/` and the port is 22, and
+neither is sensitive, so both are in the workflow where they can be read. The
+server's SSH **host public key** is pinned in the workflow too: it is public by
+definition — every client that connects is shown it — and pinning it in version
+control, where it can be reviewed, is what stops a deploy being handed to
+whatever happens to answer on that address.
 
 **Until these secrets exist the workflow will fail.** That is expected on a fresh
 repository, not a bug — the first successful run is the one after the deploy user
 is created and the secrets are set.
 
-`DEPLOY_PATH` is `/`, which looks wrong and is not. The deploy key is wrapped in
-`rrsync` (see below), which roots that SSH connection at the web root, so `/`
+The destination is `/`, which looks wrong and is not. The deploy key is wrapped
+in `rrsync` (see below), which roots that SSH connection at the web root, so `/`
 over that connection already *means* `/var/www/oddfusion.ai`.
+
+The rsync flags are `-rlvz --delete` and deliberately **not** `--chmod`: rrsync
+refuses `--chmod`, so adding it fails the deploy. Checkout already produces 644
+files and 755 directories.
 
 ### The deploy user
 
