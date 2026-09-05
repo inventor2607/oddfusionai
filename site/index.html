@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- ══ Domain: oddfusion.ai — set www.oddfusion.ai to redirect here, not the reverse ══ -->
+<title>ODD FUSION — AI for creativity and complex problem-solving</title>
+<meta name="description" content="An AI system that sends ideas on different journeys, where they evolve, meet and collide. Early access is limited.">
+<link rel="canonical" href="https://oddfusion.ai">
+<meta property="og:title" content="ODD FUSION">
+<meta property="og:description" content="An AI system for creativity and complex problem-solving. Early access is limited.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://oddfusion.ai">
+<meta property="og:image" content="https://oddfusion.ai/preview.png">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Serif:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --ink:#14172B;
+  --ink-soft:#4A506B;
+  --paper:#EEF0F6;
+  --field:#F8F9FC;
+  --line:#A8AEC4;
+  --rule:#D3D8E6;
+  --gold:#B8842A;
+  --plasma:#6B4FD8;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:"IBM Plex Sans",system-ui,sans-serif;
+  font-size:16px;
+  line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+}
+
+.wrap{max-width:1080px;margin:0 auto;padding:0 28px}
+
+/* ── masthead ── */
+.masthead{padding:34px 0 0}
+.mark{
+  font-family:"IBM Plex Serif",Georgia,serif;
+  font-size:.95rem;letter-spacing:.30em;font-weight:500;
+}
+
+/* ── hero ── */
+.hero{
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);
+  gap:56px;align-items:center;padding:56px 0 72px;
+}
+h1{
+  font-family:"IBM Plex Serif",Georgia,serif;
+  font-weight:400;
+  font-size:clamp(2rem,4.4vw,3.1rem);
+  line-height:1.16;letter-spacing:-.015em;
+  max-width:19ch;
+}
+.hero p{margin-top:22px;max-width:44ch;color:var(--ink-soft);font-size:1.03rem}
+
+.jump{
+  display:inline-block;margin-top:18px;font-size:.82rem;
+  color:var(--ink-soft);text-decoration:none;
+  border-bottom:1px solid var(--rule);padding-bottom:2px;
+}
+.jump:hover{color:var(--ink);border-color:var(--gold)}
+
+.plot{width:100%;height:auto;overflow:visible}
+.traj{fill:none;stroke:var(--line);stroke-width:1.1;opacity:.72}
+.traj-hot{fill:none;stroke:var(--plasma);stroke-width:1.6;opacity:.9}
+.traj-gold{fill:none;stroke:var(--gold);stroke-width:2.1}
+.seed{fill:var(--ink)}
+.spark{fill:var(--line);opacity:.55}
+.node-gold{fill:var(--gold)}
+.ring-gold{fill:none;stroke:var(--gold);stroke-width:1.2;opacity:.45}
+
+/* one orchestrated page-load moment: the trajectories draw themselves */
+@media (prefers-reduced-motion:no-preference){
+  html{scroll-behavior:smooth}
+  .draw{stroke-dasharray:1600;stroke-dashoffset:1600;animation:draw 1.5s cubic-bezier(.4,0,.2,1) forwards}
+  .fade{opacity:0;animation:fade .5s ease forwards 1.35s}
+  .ring-gold.fade{animation:fade .5s ease forwards 1.5s}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  @keyframes fade{to{opacity:1}}
+  .ring-gold.fade{--to:.45}
+}
+
+/* ── prose ── */
+.rule{border:0;border-top:1px solid var(--rule)}
+.prose{padding:64px 0;max-width:60ch}
+.prose h2{
+  font-family:"IBM Plex Serif",Georgia,serif;
+  font-weight:400;font-size:1.5rem;line-height:1.3;margin-bottom:18px;
+}
+.prose p + p{margin-top:16px}
+.prose p{color:var(--ink-soft)}
+.prose strong{color:var(--ink);font-weight:500}
+
+.pull{
+  font-family:"IBM Plex Serif",Georgia,serif;
+  font-size:1.28rem;line-height:1.5;color:var(--ink);
+  border-left:2px solid var(--gold);padding-left:22px;margin:34px 0;
+  max-width:46ch;
+}
+
+.band{display:block;width:100%;max-width:460px;height:auto;margin:6px 0;overflow:visible}
+.baseline{fill:none;stroke:var(--line);stroke-width:1.4;stroke-dasharray:6 7;opacity:.85}
+.arc{fill:none;stroke:var(--plasma);stroke-width:1.6;opacity:.85}
+.dust{fill:var(--line);opacity:.5}
+.nugget{fill:var(--gold)}
+
+.credo{
+  font-family:"IBM Plex Serif",Georgia,serif;
+  font-size:clamp(1.25rem,2.4vw,1.7rem);line-height:1.4;
+  padding:58px 0;max-width:34ch;letter-spacing:-.01em;
+}
+
+/* ── form ── */
+.signup{padding:64px 0 80px;display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1fr);gap:56px}
+.signup h2{font-family:"IBM Plex Serif",Georgia,serif;font-weight:400;font-size:1.5rem;line-height:1.3}
+.signup .caveat{margin-top:16px;color:var(--ink-soft);max-width:38ch}
+
+form{display:grid;gap:14px;align-content:start}
+label{display:block;font-size:.83rem;color:var(--ink-soft);margin-bottom:5px}
+input,select,textarea{
+  width:100%;font:inherit;font-size:16px;color:var(--ink);
+  background:var(--field);border:1px solid var(--rule);border-radius:3px;
+  padding:11px 13px;
+}
+textarea{resize:vertical;min-height:74px}
+input:focus,select:focus,textarea:focus,button:focus-visible{
+  outline:2px solid var(--plasma);outline-offset:2px;border-color:transparent;
+}
+button{
+  font:inherit;font-size:.95rem;font-weight:500;
+  background:var(--ink);color:var(--paper);
+  border:0;border-radius:3px;padding:12px 22px;cursor:pointer;
+  justify-self:start;margin-top:4px;
+}
+button:hover{background:var(--plasma)}
+.privacy{font-size:.79rem;color:var(--ink-soft);margin-top:2px}
+.status{font-size:.9rem;padding:12px 14px;border-radius:3px;background:var(--field);border:1px solid var(--rule)}
+.status[data-tone="ok"]{border-color:var(--gold)}
+
+/* ── footer ── */
+footer{border-top:1px solid var(--rule);padding:26px 0 44px;font-size:.85rem;color:var(--ink-soft)}
+footer a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--rule)}
+footer a:hover{border-color:var(--gold)}
+
+@media (max-width:840px){
+  /* the plot scales to ~38% on a phone — thicken everything so it stays visible */
+  .traj{stroke-width:2.4}
+  .traj-hot{stroke-width:3.4}
+  .traj-gold{stroke-width:4.6}
+  .ring-gold{stroke-width:2.6;r:15}
+  .seed{r:9}
+  .spark{r:5}
+  .node-gold{r:9}
+
+  h1{max-width:none;font-size:clamp(1.9rem,7.4vw,2.5rem);line-height:1.2}
+  .hero{grid-template-columns:1fr;gap:30px;padding:34px 0 44px}
+  .band{display:block;width:100%;max-width:460px;height:auto;margin:6px 0;overflow:visible}
+.baseline{fill:none;stroke:var(--line);stroke-width:1.4;stroke-dasharray:6 7;opacity:.85}
+.arc{fill:none;stroke:var(--plasma);stroke-width:1.6;opacity:.85}
+.dust{fill:var(--line);opacity:.5}
+.nugget{fill:var(--gold)}
+
+.credo{padding:44px 0;max-width:none;font-size:1.35rem}
+  .prose h2{font-size:1.35rem}
+  .signup{grid-template-columns:1fr;gap:32px;padding:48px 0 60px}
+  .prose{padding:42px 0}
+  .wrap{padding:0 22px}
+}
+
+@media (max-width:480px){
+  .wrap{padding:0 20px}
+  .masthead{padding-top:26px}
+  .hero{padding:30px 0 44px}
+  .hero p{font-size:1rem}
+  .prose{padding:36px 0}
+  .band{display:block;width:100%;max-width:460px;height:auto;margin:6px 0;overflow:visible}
+.baseline{fill:none;stroke:var(--line);stroke-width:1.4;stroke-dasharray:6 7;opacity:.85}
+.arc{fill:none;stroke:var(--plasma);stroke-width:1.6;opacity:.85}
+.dust{fill:var(--line);opacity:.5}
+.nugget{fill:var(--gold)}
+
+.credo{padding:38px 0;font-size:1.25rem}
+  .pull{font-size:1.15rem;padding-left:18px;margin:26px 0}
+  .signup{padding:40px 0 52px}
+  button{width:100%;justify-self:stretch;padding:15px 22px;text-align:center}
+}
+</style>
+</head>
+
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="mark">ODD FUSION</div>
+  </header>
+
+  <section class="hero">
+    <div>
+      <h1>We don't stop at asking for more ideas. We send them on journeys.</h1>
+      <p>An AI system for creativity and complex problem-solving, built for problems
+         where an exceptional solution creates significant value.</p>
+      <a class="jump" href="#keep-me-posted">Leave your details</a>
+    </div>
+
+    <svg class="plot" viewBox="0 0 900 520" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path class="traj draw" style="animation-delay:.00s" d="M60,262 C170,180 250,110 380,120 C500,129 610,88 880,66"/>
+      <path class="traj draw" style="animation-delay:.06s" d="M60,262 C150,150 230,58 360,45 C470,32 650,62 880,124"/>
+      <path class="traj draw" style="animation-delay:.12s" d="M60,262 C180,202 280,180 400,216 C520,252 640,300 880,304"/>
+      <path class="traj draw" style="animation-delay:.18s" d="M60,262 C160,302 240,382 370,402 C480,419 620,470 880,472"/>
+      <path class="traj draw" style="animation-delay:.24s" d="M60,262 C190,332 260,452 400,482 C520,506 680,436 880,398"/>
+      <path class="traj draw" style="animation-delay:.30s" d="M60,262 C170,242 260,302 390,332 C510,358 630,344 880,252"/>
+      <path class="traj draw" style="animation-delay:.36s" d="M60,262 C200,292 300,352 420,346 C540,340 650,392 880,352"/>
+      <path class="traj draw" style="animation-delay:.42s" d="M60,262 C155,225 250,152 390,182 C505,206 600,258 880,196"/>
+
+      <!-- two journeys that bend toward each other and collide -->
+      <path class="traj-hot draw" style="animation-delay:.46s" d="M60,262 C200,168 340,150 470,196 C560,228 604,250 646,268"/>
+      <path class="traj-hot draw" style="animation-delay:.46s" d="M60,262 C190,362 330,392 462,352 C556,323 606,292 646,268"/>
+
+      <!-- what comes out of the collision -->
+      <path class="traj-gold draw" style="animation-delay:1.05s" d="M646,268 C716,262 772,244 838,232"/>
+
+      <circle class="seed" cx="60" cy="262" r="4.5"/>
+      <circle class="spark fade" style="animation-delay:1.30s" cx="380" cy="120" r="2.4"/>
+      <circle class="spark fade" style="animation-delay:1.34s" cx="400" cy="216" r="2.4"/>
+      <circle class="spark fade" style="animation-delay:1.38s" cx="370" cy="402" r="2.4"/>
+      <circle class="spark fade" style="animation-delay:1.42s" cx="390" cy="332" r="2.4"/>
+      <circle class="ring-gold fade" cx="838" cy="232" r="11"/>
+      <circle class="node-gold fade" style="animation-delay:1.45s" cx="838" cy="232" r="5"/>
+    </svg>
+  </section>
+
+  <hr class="rule">
+
+  <section class="prose">
+    <h2>Nuclear fusion for ideas</h2>
+    <p>Ask a model for a hundred ideas and you get a hundred answers to the same question.
+       We do something else. We take a problem and open it into a billion possible paths —
+       and send ideas down them.</p>
+
+    <p>Along the way each idea changes. It's shaped by tools that influence how it develops,
+       and sometimes it meets another idea travelling from a different direction. They collide,
+       and what comes out is something neither of them was.</p>
+  </section>
+
+  <svg class="band" viewBox="0 0 460 96" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path class="baseline" d="M8,74 H452"/>
+    <path class="arc" d="M40,74 C96,74 118,14 190,12 C258,10 282,58 330,70 C368,79 404,76 430,74"/>
+    <circle class="seed" cx="40" cy="74" r="3.4"/>
+    <circle class="nugget" cx="430" cy="74" r="4.2"/>
+  </svg>
+
+  <section class="prose">
+    <h2>One of the tools</h2>
+    <p>Reality Distance controls how far an idea is allowed to drift from what's practical.</p>
+
+    <p>Stay too close and it never leaves familiar ground. Go too far and it becomes fantasy.
+       But sometimes it's worth letting an idea travel away for a while — free of what seems
+       possible — and then pulling it back to reality from somewhere else entirely.</p>
+
+    <p><strong>That's one tool. There are others.</strong></p>
+  </section>
+
+  <svg class="band" viewBox="0 0 460 96" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <circle class="dust" cx="208.1" cy="52.3" r="2.9"/>
+    <circle class="dust" cx="214.0" cy="48.6" r="2.4"/>
+    <circle class="dust" cx="90.9" cy="48.9" r="2.5"/>
+    <circle class="dust" cx="357.3" cy="18.8" r="2.0"/>
+    <circle class="dust" cx="49.7" cy="70.3" r="2.6"/>
+    <circle class="dust" cx="28.3" cy="82.7" r="3.0"/>
+    <circle class="dust" cx="296.4" cy="56.3" r="1.8"/>
+    <circle class="dust" cx="16.6" cy="50.0" r="1.7"/>
+    <circle class="dust" cx="93.3" cy="29.4" r="1.6"/>
+    <circle class="dust" cx="213.2" cy="43.7" r="2.8"/>
+    <circle class="dust" cx="237.4" cy="58.1" r="2.3"/>
+    <circle class="dust" cx="300.2" cy="44.9" r="2.0"/>
+    <circle class="dust" cx="447.0" cy="83.7" r="2.8"/>
+    <circle class="dust" cx="320.0" cy="34.7" r="1.9"/>
+    <circle class="dust" cx="136.6" cy="17.1" r="2.7"/>
+    <circle class="dust" cx="185.4" cy="73.0" r="2.1"/>
+    <circle class="dust" cx="429.6" cy="73.0" r="1.6"/>
+    <circle class="dust" cx="101.9" cy="77.5" r="2.3"/>
+    <circle class="dust" cx="439.4" cy="40.6" r="1.7"/>
+    <circle class="dust" cx="285.7" cy="68.1" r="2.0"/>
+    <circle class="dust" cx="48.2" cy="35.9" r="2.9"/>
+    <circle class="dust" cx="342.0" cy="20.5" r="1.9"/>
+    <circle class="dust" cx="54.3" cy="16.3" r="2.7"/>
+    <circle class="dust" cx="87.8" cy="52.3" r="2.2"/>
+    <circle class="dust" cx="93.5" cy="64.7" r="1.8"/>
+    <circle class="dust" cx="291.9" cy="20.4" r="2.2"/>
+    <circle class="dust" cx="103.2" cy="31.4" r="3.0"/>
+    <circle class="dust" cx="182.7" cy="73.5" r="2.5"/>
+    <circle class="dust" cx="53.9" cy="83.2" r="1.9"/>
+    <circle class="dust" cx="123.1" cy="67.6" r="2.1"/>
+    <circle class="dust" cx="139.8" cy="17.3" r="1.7"/>
+    <circle class="dust" cx="265.2" cy="29.5" r="2.4"/>
+    <circle class="dust" cx="172.8" cy="44.6" r="2.9"/>
+    <circle class="dust" cx="221.9" cy="53.4" r="2.8"/>
+    <circle class="dust" cx="90.1" cy="23.1" r="2.9"/>
+    <circle class="dust" cx="93.1" cy="65.2" r="2.9"/>
+    <circle class="dust" cx="96.1" cy="80.4" r="2.8"/>
+    <circle class="dust" cx="274.3" cy="42.3" r="1.7"/>
+    <circle class="dust" cx="26.9" cy="81.3" r="1.9"/>
+    <circle class="dust" cx="318.6" cy="30.5" r="2.8"/>
+    <circle class="dust" cx="271.3" cy="33.1" r="1.8"/>
+    <circle class="dust" cx="325.5" cy="17.0" r="1.9"/>
+    <circle class="dust" cx="255.0" cy="73.4" r="2.5"/>
+    <circle class="ring-gold" cx="372" cy="48" r="13" style="opacity:.45"/>
+    <circle class="nugget" cx="372" cy="48" r="5.2"/>
+  </svg>
+
+  <section class="prose">
+    <h2>A gold mine, not a search engine</h2>
+    <p>An enormous space of journeys raises an obvious question: how do you avoid drowning
+       in ideas?</p>
+
+    <p>When you're searching for gold, you expect to dig through a lot of dirt. The goal isn't
+       for every idea to be great — it's to reach veins we would never have dug into otherwise.
+       And you don't have to go through the dirt yourself. The system evaluates what it produced
+       and surfaces only what deserves your attention.</p>
+
+    <p class="pull">The system can go through a mountain of dirt. You should only have to see the gold.</p>
+
+    <p>Not every problem deserves the same journey. Some are answered in a few hours. Others are
+       worth far more — and the longer the ideas travel, the wider the ground they cover. The
+       size of the journey follows the size of what's at stake.</p>
+  </section>
+
+  <hr class="rule">
+
+  <p class="credo">This is no longer a vision. We have a working MVP,
+     and early experiments are underway.</p>
+
+  <hr class="rule">
+
+  <section class="prose">
+    <h2>The name</h2>
+    <p>Odd means unusual, out of the ordinary, different — not wrong. It's what a good idea
+       often looks like before anyone recognizes it. Fusion is what happens when those odd
+       journeys meet.</p>
+  </section>
+
+  <hr class="rule">
+
+  <section class="signup" id="keep-me-posted">
+    <div>
+      <h2>Ask to be kept in the loop</h2>
+      <p class="caveat">Access is limited, and we can't say yet when it will open — it may be a
+         while. Leave your details and we'll write to you when there's something real to show.</p>
+    </div>
+
+    <form id="f">
+      <div>
+        <label for="name">Name</label>
+        <input id="name" name="name" type="text" autocomplete="name" required>
+      </div>
+      <div>
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" autocomplete="email" required>
+      </div>
+      <div>
+        <label for="org">Organization <span style="opacity:.6">(optional)</span></label>
+        <input id="org" name="organization" type="text" autocomplete="organization">
+      </div>
+      <div>
+        <label for="role">I'm interested as</label>
+        <select id="role" name="interested_as">
+          <option>Investor</option>
+          <option>Potential partner or customer</option>
+          <option>Curious — passing it on</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div>
+        <label for="note">Anything you'd like to add <span style="opacity:.6">(optional)</span></label>
+        <textarea id="note" name="note"></textarea>
+      </div>
+      <button type="submit">Request access</button>
+      <p class="privacy">We'll only use your details to contact you about ODD FUSION. Nothing else.</p>
+      <p class="status" id="status" hidden></p>
+    </form>
+  </section>
+
+  <footer>
+    Founded by <a href="https://www.linkedin.com/in/michal-ben-shabtay-b3667646/">Michal Ben Shabtay</a>
+    · <a href="mailto:michal@oddfusion.ai">michal@oddfusion.ai</a> · ODD FUSION 2026
+  </footer>
+
+</div>
+
+<script>
+/* ══ FILL IN: paste your form endpoint between the quotes ══
+   Formspree → https://formspree.io/f/xxxxxxx
+   Tally     → your form's POST URL
+   Leave empty to test the page without sending anything.        */
+const ENDPOINT = "";
+
+const form = document.getElementById('f');
+const status = document.getElementById('status');
+
+function show(msg, tone){
+  status.hidden = false;
+  status.textContent = msg;
+  status.setAttribute('data-tone', tone);
+}
+
+form.addEventListener('submit', async e => {
+  e.preventDefault();
+  if(!ENDPOINT){
+    show('Form endpoint not connected yet — nothing was sent.', 'ok');
+    return;
+  }
+  const btn = form.querySelector('button');
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+  try{
+    const res = await fetch(ENDPOINT, {
+      method: 'POST',
+      headers: {'Accept':'application/json'},
+      body: new FormData(form)
+    });
+    if(!res.ok) throw new Error(res.status);
+    form.querySelectorAll('input,select,textarea,button').forEach(el => el.hidden = true);
+    form.querySelectorAll('label,.privacy').forEach(el => el.hidden = true);
+    show("Got it. We'll be in touch when there's something to show.", 'ok');
+  }catch(err){
+    btn.disabled = false;
+    btn.textContent = 'Request access';
+    show("That didn't go through. Please email michal@oddfusion.ai instead.", '');
+  }
+});
+</script>
+</body>
+</html>

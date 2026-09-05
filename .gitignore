@@ -1,0 +1,5 @@
+# Internal handoff and the loose originals that were copied into site/.
+# Anchored to the repo root so they do not also match site/preview.png.
+/claude-code-handoff.md
+/oddfusion-landing.html
+/preview.png

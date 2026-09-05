@@ -1,0 +1,50 @@
+name: Deploy site
+
+# Boring on purpose: checkout, rsync, done. One HTML file and one PNG, no
+# dependencies, so there is nothing to build and nothing to install.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'site/**'
+      - '.github/workflows/deploy.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-site
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Load deploy key
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          # Pinned host key rather than StrictHostKeyChecking=no: accepting any
+          # key would let anything answering on that address receive the deploy.
+          printf '%s\n' "${{ secrets.DEPLOY_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Rsync site to web root
+        run: |
+          rsync -rlvz --delete \
+            --chmod=D755,F644 \
+            -e "ssh -i ~/.ssh/id_ed25519 -p ${{ secrets.DEPLOY_PORT || 22 }}" \
+            site/ \
+            "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:${{ secrets.DEPLOY_PATH }}/"
+
+      - name: Verify the site answers
+        run: |
+          code=$(curl -s -o /dev/null -w '%{http_code}' https://oddfusion.ai/)
+          echo "https://oddfusion.ai/ -> $code"
+          test "$code" = "200"
+          code=$(curl -s -o /dev/null -w '%{http_code}' https://oddfusion.ai/preview.png)
+          echo "https://oddfusion.ai/preview.png -> $code"
+          test "$code" = "200"
