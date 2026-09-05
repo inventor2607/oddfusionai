@@ -41,6 +41,23 @@ jobs:
           printf '%s %s\n' "${{ secrets.VPS_HOST }}" "$HOST_KEY" > ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
 
+      - name: 'PROBE 1 - ssh authenticates at all'
+        continue-on-error: true
+        run: ssh -o BatchMode=yes -o ConnectTimeout=15 -i ~/.ssh/id_ed25519 "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" true
+
+      - name: 'PROBE 2 - account is oddfusion-deploy'
+        continue-on-error: true
+        run: |
+          who=$(ssh -o BatchMode=yes -i ~/.ssh/id_ed25519 "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" 'id -un' 2>/dev/null || echo NONE)
+          test "$who" = "oddfusion-deploy"
+
+      - name: 'PROBE 3 - key is rrsync-confined (a plain command must fail)'
+        continue-on-error: true
+        run: |
+          if ssh -o BatchMode=yes -i ~/.ssh/id_ed25519 "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" 'echo unrestricted' 2>/dev/null | grep -q unrestricted; then
+            exit 1   # key is NOT confined -> wrong key/user
+          fi
+
       - name: Rsync site to web root
         run: |
           # No --chmod: rrsync refuses it (it is not in rrsync's allowed long
