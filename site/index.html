@@ -114,6 +114,9 @@ h1{
 .baseline{fill:none;stroke:var(--line);stroke-width:1.4;stroke-dasharray:6 7;opacity:.85}
 .arc{fill:none;stroke:var(--plasma);stroke-width:1.6;opacity:.85}
 .dust{fill:var(--line);opacity:.5}
+.stage-done{fill:none;stroke:var(--plasma);stroke-width:2.2}
+.stage-todo{fill:none;stroke:var(--line);stroke-width:1.4;stroke-dasharray:5 7;opacity:.7}
+.stage-tick{fill:none;stroke:var(--line);stroke-width:1.4;opacity:.7}
 .nugget{fill:var(--gold)}
 
 .credo{
@@ -152,13 +155,14 @@ footer a:hover{border-color:var(--gold)}
 
   h1{max-width:none;font-size:clamp(1.9rem,7.4vw,2.5rem);line-height:1.2}
   .hero{grid-template-columns:1fr;gap:30px;padding:34px 0 44px}
-  .band{display:block;width:100%;max-width:460px;height:auto;margin:6px 0;overflow:visible}
-.baseline{fill:none;stroke:var(--line);stroke-width:1.4;stroke-dasharray:6 7;opacity:.85}
-.arc{fill:none;stroke:var(--plasma);stroke-width:1.6;opacity:.85}
-.dust{fill:var(--line);opacity:.5}
-.nugget{fill:var(--gold)}
-
-.credo{padding:44px 0;max-width:none;font-size:1.35rem}
+  .band{max-width:none}
+  .baseline{stroke-width:2.4}
+  .arc{stroke-width:3}
+  .dust{r:4}
+  .stage-done{stroke-width:4}
+  .stage-todo{stroke-width:2.6}
+  .stage-tick{stroke-width:2.6;r:6}
+  .credo{padding:44px 0;max-width:none;font-size:1.35rem}
   .prose h2{font-size:1.35rem}
   .signup{grid-template-columns:1fr;gap:32px;padding:48px 0 60px}
   .prose{padding:42px 0}
@@ -171,12 +175,6 @@ footer a:hover{border-color:var(--gold)}
   .hero{padding:30px 0 44px}
   .hero p{font-size:1rem}
   .prose{padding:36px 0}
-  .band{display:block;width:100%;max-width:460px;height:auto;margin:6px 0;overflow:visible}
-.baseline{fill:none;stroke:var(--line);stroke-width:1.4;stroke-dasharray:6 7;opacity:.85}
-.arc{fill:none;stroke:var(--plasma);stroke-width:1.6;opacity:.85}
-.dust{fill:var(--line);opacity:.5}
-.nugget{fill:var(--gold)}
-
 .credo{padding:38px 0;font-size:1.25rem}
   .pull{font-size:1.15rem;padding-left:18px;margin:26px 0}
   .signup{padding:40px 0 52px}
@@ -227,7 +225,7 @@ footer a:hover{border-color:var(--gold)}
     </svg>
   </section>
 
-  <hr class="rule">
+
 
   <section class="prose">
     <h2>Nuclear fusion for ideas</h2>
@@ -325,10 +323,22 @@ footer a:hover{border-color:var(--gold)}
 
   <hr class="rule">
 
-  <p class="credo">This is no longer a vision. We have a working MVP,
-     and early experiments are underway.</p>
+  <svg class="band" viewBox="0 0 460 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path class="stage-done" d="M22,34 H126"/>
+    <path class="stage-todo" d="M126,34 H438"/>
+    <circle class="seed" cx="22" cy="34" r="4"/>
+    <circle class="nugget" cx="126" cy="34" r="5"/>
+    <circle class="stage-tick" cx="230" cy="34" r="4"/>
+    <circle class="stage-tick" cx="334" cy="34" r="4"/>
+    <circle class="stage-tick" cx="438" cy="34" r="4"/>
+  </svg>
+
+  <p class="credo">This is no longer a vision. We have a working MVP. In a first run it produced
+     more than 1,300 distinct directions on a single problem in a few hours — and that was one
+     stage of the process.</p>
 
   <hr class="rule">
+
 
   <section class="prose">
     <h2>The name</h2>
